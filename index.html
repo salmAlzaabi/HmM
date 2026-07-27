@@ -89,7 +89,9 @@
     display:flex; align-items:center; justify-content:center;
     background: linear-gradient(180deg, var(--violet-bright), var(--violet));
     color:#0a0712; font-weight:800; font-size:1rem;
+    overflow:hidden;
   }
+  .nav-brand .mono img{ width:100%; height:100%; object-fit:cover; }
   .nav-links{ display:flex; gap:26px; align-items:center; }
   .nav-links a{ color:var(--ink-soft); text-decoration:none; font-size:.9rem; font-weight:500; transition:color .2s; }
   .nav-links a:hover{ color:var(--violet-bright); }
@@ -123,10 +125,11 @@
   .hero{ padding:90px 24px 80px; text-align:center; border-bottom:1px solid var(--line); }
   .hero-logo-wrap{
     width:104px; height:104px; margin:0 auto 30px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
     border:1px solid var(--line-deep); box-shadow:0 0 40px rgba(157,124,232,0.3);
   }
   .hero-logo-wrap span{ font-family:var(--font-display); font-weight:800; font-size:2.6rem; color:var(--violet-bright); }
+  .hero-logo-wrap img{ width:100%; height:100%; object-fit:cover; }
 
   .hero-badge{
     display:inline-flex; align-items:center; gap:8px;
@@ -270,32 +273,30 @@
 
 <header class="site-header">
   <div class="nav-inner">
-    <a href="#" class="nav-brand"><span class="mono">H</span>HmM</a>
+    <a href="#" class="nav-brand"><span class="mono" id="navMono">H</span>HmM</a>
     <nav class="nav-links">
-      <a href="#stats">نبض الشبكة</a>
-      <a href="#servers">السيرفرات</a>
-      <a href="#" class="nav-cta" id="navJoin">انضم إلينا</a>
+      <a href="#stats">Network Pulse</a>
+      <a href="#servers">Servers</a>
       <button class="menu-toggle" id="menuToggle" aria-label="القائمة">
         <span></span><span></span><span></span>
       </button>
     </nav>
   </div>
   <div class="mobile-dropdown" id="mobileDropdown">
-    <a href="#stats">نبض الشبكة</a>
-    <a href="#servers">السيرفرات</a>
-    <a href="#" class="nav-cta" id="navJoinMobile">انضم إلينا</a>
+    <a href="#stats">HmM Pulse</a>
+    <a href="#servers">Servers</a>
   </div>
 </header>
 
 <section class="hero">
   <div class="container">
-    <div class="hero-logo-wrap"><span>H</span></div>
-    <div class="hero-badge"><span class="dot"></span>الشبكة نشطة الآن</div>
+    <div class="hero-logo-wrap" id="heroLogo"><span>H</span></div>
+    <div class="hero-badge"><span class="dot"></span>Current Server Branches</div>
     <h1>HmM</h1>
-    <p class="hero-tagline">شبكة سيرفرات ديسكورد — رول بلاي، ألعاب، ومجتمع، كل واحد بهويته الخاصة تحت مظلة وحدة.</p>
+    <p class="hero-tagline">Official HmM Team Branches — Every branch has its own identity, all united under the HmM Team.</p>
     <div class="hero-actions">
-      <a href="#servers" class="btn btn-primary">تصفّح السيرفرات</a>
-      <a href="#stats" class="btn btn-ghost">نبض الشبكة</a>
+      <a href="#servers" class="btn btn-primary">View Servers</a>
+      <a href="#stats" class="btn btn-ghost">Network Pulse</a>
     </div>
   </div>
 </section>
@@ -320,7 +321,7 @@
         <div class="stat-label">سيرفر ضمن HmM</div>
       </div>
     </div>
-    <p class="stats-note">HmM</p>
+    <p class="stats-note">الأعداد تقريبية وتُجلب مباشرة من ديسكورد عند فتح الصفحة — بدون أي بوت.</p>
   </div>
 </section>
 
@@ -343,8 +344,6 @@
   <p>© 2026 HmM. جميع الحقوق محفوظة.</p>
 </footer>
 
-<a href="#" class="btn btn-primary sticky-join" id="stickyJoin">انضم إلينا</a>
-
 </div>
 
 <script>
@@ -365,6 +364,7 @@
       type: "مجتمع",
       description: "المحور الذي يجمعنا. مجتمع مبني على الاحترام، الالتزام، والانضباط.",
       inviteCode: "rYnkYME9xj",
+      logo: "axis.png", // ضع صورة الشعار بنفس اسم الملف بجانب index.html
       siteUrl: "" // حط هنا رابط موقع Axis الخاص إذا رفعته على GitHub Pages أو غيره
     },
     {
@@ -373,19 +373,21 @@
       type: "عام",
       description: "سيرفر عام للنقاشات والتعارف ومتابعة كل جديد بخصوص شبكة HmM.",
       inviteCode: "ضع-كود-الدعوة-هنا",
+      logo: "community.png", // ضع صورة الشعار بنفس اسم الملف بجانب index.html
       siteUrl: ""
     }
   ];
 
-  // رابط الانضمام الرئيسي في الهيدر وزر الانضمام العائم (أول سيرفر صالح بشكل افتراضي)
-  const PRIMARY_INVITE = SERVERS.find(s => s.inviteCode && !s.inviteCode.includes("ضع-كود"))?.inviteCode || SERVERS[0].inviteCode;
-  const primaryUrl = `https://discord.gg/${PRIMARY_INVITE}`;
-  ["navJoin", "navJoinMobile", "stickyJoin"].forEach(id => {
-    const el = document.getElementById(id);
-    el.href = primaryUrl;
-    el.target = "_blank";
-    el.rel = "noopener noreferrer";
-  });
+  // ===== شعار الشبكة الرئيسي =====
+  // إذا حطيت ملف اسمه logo.png بجانب index.html، بيظهر تلقائياً بدل حرف H
+  const SITE_LOGO = "logo.png";
+  const logoProbe = new Image();
+  logoProbe.onload = () => {
+    document.getElementById('navMono').innerHTML = `<img src="${SITE_LOGO}" alt="HmM">`;
+    document.getElementById('heroLogo').innerHTML = `<img src="${SITE_LOGO}" alt="HmM">`;
+  };
+  logoProbe.src = SITE_LOGO;
+
 
   // ===== قائمة الجوال =====
   const menuToggle = document.getElementById('menuToggle');
@@ -401,15 +403,7 @@
     });
   });
 
-  // ===== زر الانضمام العائم =====
-  const stickyJoin = document.getElementById('stickyJoin');
-  const hero = document.querySelector('.hero');
-  window.addEventListener('scroll', () => {
-    const heroBottom = hero.getBoundingClientRect().bottom;
-    if (heroBottom < 0) stickyJoin.classList.add('show');
-    else stickyJoin.classList.remove('show');
-  });
-
+  
   // ===== بناء بطاقات السيرفرات =====
   const serversList = document.getElementById('serversList');
 
